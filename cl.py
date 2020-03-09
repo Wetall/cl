@@ -29,15 +29,15 @@ def remove_outdated_builds(path, validity_period):
     if len(candidates) == 0:
         return  # no candidates - go away
     # sort candidates by size
-    candidates = sorted(candidates, key=lambda x: x.size)
+    candidates = sorted(candidates, key=lambda x: x["size"])
     print('Candidates sorted by size:')
-    [print(x.path, convert_size(x.size)) for x in candidates]
+    [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
     safed_build = candidates.pop(0)
-    print('Safe biggest build %s' % safed_build.path)
+    print('Safe biggest build %s' % safed_build["path"])
     # remove other builds
     for build in candidates:
-        print('Removing build %s' % build.path)
+        print('Removing build %s' % build["path"])
         # shutil.rmtree(os.path.join(root_folder_path, build))  #uncomment to use----del
 
 
