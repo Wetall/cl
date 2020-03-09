@@ -8,7 +8,7 @@ import os
 def remove_outdated_builds(path, validity_period):
     directory = os.path.join(*path)
     current_time = time.time()
-    valid_seconds = current_time - 24*60*60*validity_period
+    valid_seconds = 24*60*60*validity_period
     candidates = []
     print("Processing directory %s" % directory)
     # search candidates on removing
