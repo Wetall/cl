@@ -62,11 +62,11 @@ def main():
     for project in ["INJ2", "MKM"]:
         for platform in ["IOS", "Android"]:
             platform_dir = os.path.join(
-                *["D:", "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform])
+                *["D:", os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform])
             for dir in os.listdir(platform_dir):
                 print("Processing release %s" % dir)
                 remove_outdated_builds(
-                    ["D:", "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], 0)
+                    ["D:", os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], 0)
 
 
 if __name__ == "__main__":
