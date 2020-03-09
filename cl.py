@@ -76,7 +76,7 @@ def convert_size(size):
 
 def main():
     path1 = "C:\\Users\\wetal\\Documents\\Size"
-    path = "D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\"+project+"\\Automated\\"+platform"
+    #path = "D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\"+project+"\\Automated\\"+platform"
     if os.path.isfile(path):
         try:
             size = os.path.getsize(path)
