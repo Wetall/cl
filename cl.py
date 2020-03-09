@@ -1,72 +1,55 @@
-import argparse
+#!/bin/env python3
+
 import time
 import shutil
-import sys
 import os
-import re
-def check_build_full(build_path):
-    for target in ["Development","Shipping"]:
-        if not os.path.isdir(os.path.join(build_path, target)):
-            return False
-        for fullbuild in ["ATC","DXT","ETC1","ETC2"]:
-            if not os.path.isdir(os.path.join(build_path, target, fullbuild)):
-                return False
-    return True
-def check_build_full2(build_path):
-    for target in ["Development2","Shipping2"]:
-        if not os.path.isdir(os.path.join(build_path, target)):
-            return False
-        for fullbuild in ["ATC2","DXT2","ETC12","ETC22"]:
-            if not os.path.isdir(os.path.join(build_path, target, fullbuild)):
-                return False
-    return True
 
-def remove_outdated_builds(root_folder_path, validity_period):
-    delta_time = 24*60*60*validity_period   #validity_period in days
+
+def remove_outdated_builds(path, validity_period):
+    directory = os.path.join(*path)
     current_time = time.time()
-    directory = os.path.join(root_folder_path)
-    print("Processing ", directory)
+    valid_seconds = current_time - 24*60*60*validity_period
+    candidates = []
+    print("Processing directory %s" % directory)
+    # search candidates on removing
     for build in os.listdir(directory):
-        print("Found build ", build)
-
-        timestamp = os.path.getmtime(os.path.join(root_folder_path, build))
-        print(os.path.join(root_folder_path, build),current_time,delta_time) #debag
-        if (current_time - delta_time > timestamp):
-            if check_build_full(os.path.join(root_folder_path, build)) or check_build_full2(os.path.join(root_folder_path, build)):
-                print("Skipped build is full")
-                continue
-            try:
-                print("Removing ", os.path.join(root_folder_path, build))
-
-                #shutil.rmtree(os.path.join(root_folder_path, build))  #uncomment to use----del
-            except Exception as ex:
-                print("Unable to remove", build)
-                print(ex)
-                pass
-            else:
-                print("Removed", build)
-        else:
-            print("Skipped modification time")
-
-def main():
-    parser = argparse.ArgumentParser(description="Clean Build Artifacts")
-    args = parser.parse_args() #can del
-
-    for project in ["INJ2","MKM"]:
-        for platform in ["IOS","Android"]:
-            for dir in os.listdir("D:\chi-file01\INJ2Mobile\MobileBuilds\\"+project+"\Automated\\"+platform):
-                print("Processing release " + dir)
-                remove_outdated_builds("D:\chi-file01\INJ2Mobile\MobileBuilds\\"+project+"\Automated\\"+platform+"\\"+dir, 0)
-
-if __name__ == "__main__":
-    main()
+        build_path = os.path.join(directory, build)
+        mtime = os.path.getmtime(build_path)
+        build_age = current_time - mtime
+        print("Found build %s, mtime: %s, build_age: %s" %
+              (build_path, mtime, build_age))
+        if (build_age < valid_seconds):
+            print("Skipped build because %s < %s" % (build_age, valid_seconds))
+            continue
+        print("Found candidate for removing: %s" % build_path)
+        candidates.append({
+            "path": build_path,
+            "size": folder_size(build_path)
+        })
+    if len(candidates) == 0:
+        return  # no candidates - go away
+    # sort candidates by size
+    candidates = sorted(candidates, key=lambda x: x.size)
+    print('Candidates sorted by size:')
+    [print(x.path, convert_size(x.size)) for x in candidates]
+    # safe biggest build
+    safed_build = candidates.pop(0)
+    print('Safe biggest build %s' % safed_build.path)
+    # remove other builds
+    for build in candidates:
+        print('Removing build %s' % build.path)
+        # shutil.rmtree(os.path.join(root_folder_path, build))  #uncomment to use----del
 
 
---------------------------------------
+def folder_size(path='.'):
+    total = 0
+    for entry in os.scandir(path):
+        if entry.is_file():
+            total += entry.stat().st_size
+        elif entry.is_dir():
+            total += folder_size(entry.path)
+    return total
 
-
-import os
-import subprocess
 
 def convert_size(size):
     for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
@@ -74,25 +57,17 @@ def convert_size(size):
             return "%3.1f %s" % (size, x)
         size /= 1024.0
 
+
 def main():
-    path1 = "C:\\Users\\wetal\\Documents\\Size"
-    #path = "D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\"+project+"\\Automated\\"+platform"
-    if os.path.isfile(path):
-        try:
-            size = os.path.getsize(path)
-        except Exception as err:
-            print(err)
-    else:
-        size = 0
-        for dirpath, dirnames, filenames in os.walk(path):
-            for file in filenames:
-                filepath = os.path.join(dirpath, file)
-                try:
-                    size += os.path.getsize(filepath)
-                except Exception as err:
-                    print (err)
-    print (size, "bytes")
-    print (convert_size(size))
+    for project in ["INJ2", "MKM"]:
+        for platform in ["IOS", "Android"]:
+            platform_dir = os.path.join(
+                *["D:", "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform])
+            for dir in os.listdir(platform_dir):
+                print("Processing release %s" % dir)
+                remove_outdated_builds(
+                    ["D:", "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], 0)
+
 
 if __name__ == "__main__":
     main()
