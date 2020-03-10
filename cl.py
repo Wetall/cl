@@ -29,7 +29,7 @@ def remove_outdated_builds(path, validity_period):
     if len(candidates) == 0:
         return  # no candidates - go away
     # sort candidates by size
-    candidates = sorted(candidates, key=lambda x: x["size"])
+    candidates = sorted(candidates,reverse = True, key=lambda x: x["size"])
     print('Candidates sorted by size:')
     [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
