@@ -3,12 +3,20 @@
 import time
 import shutil
 import os
+import argparse
+
+parser = argparse.ArgumentParser(description='Prune outdated builds')
+parser.add_argument('--maximum-size', type=int, default=2 **
+                    40, help='Max sum of left builds ( bytes )')
+parser.add_argument('--keep-all-duration', type=int,
+                    default=30, help='Days to keep builds')
+args = parser.parse_args()
 
 
-def remove_outdated_builds(path, validity_period):
+def remove_outdated_builds(path, validity_days=30):
     directory = os.path.join(*path)
     current_time = time.time()
-    valid_seconds = 24*60*60*validity_period
+    valid_seconds = 24*60*60*validity_days
     candidates = []
     print("Processing directory %s" % directory)
     # search candidates on removing
@@ -29,12 +37,13 @@ def remove_outdated_builds(path, validity_period):
     if len(candidates) == 0:
         return  # no candidates - go away
     # sort candidates by size
-    candidates = sorted(candidates,reverse = True, key=lambda x: x["size"])
+    candidates = sorted(candidates, reverse=True, key=lambda x: x["size"])
     print('Candidates sorted by size:')
     [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
     safed_build = candidates.pop(0)
     print('Safe biggest build %s' % safed_build["path"])
+
     # remove other builds
     for build in candidates:
         print('Removing build %s' % build["path"])
@@ -66,7 +75,7 @@ def main():
             for dir in os.listdir(platform_dir):
                 print("Processing release %s" % dir)
                 remove_outdated_builds(
-                    ["D:", os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], 0)
+                    ["D:", os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], validity_days=args.keep_all_duration)
 
 
 if __name__ == "__main__":
