@@ -10,6 +10,9 @@ parser.add_argument('--maximum-size', type=int, default=2 **
                     40, help='Max sum of left builds ( bytes )')
 parser.add_argument('--keep-all-duration', type=int,
                     default=30, help='Days to keep builds')
+parser.add_argument('--release', type=str,
+                    default=None, help='Release name ( default ALL releases )')
+
 args = parser.parse_args()
 
 
@@ -77,10 +80,14 @@ def main():
         for platform in ["IOS", "Android"]:
             platform_dir = 'D:\\\chi-file01\\\INJ2Mobile\\\MobileBuilds\\\%s\\\Automated\\\%s' % (
                 project, platform)
-            for release_name in os.listdir(platform_dir):
-                print("Processing release %s" % release_name)
+            if args.release:
                 remove_outdated_builds(
-                    '%s\\\%s' % (platform_dir, release_name), validity_days=args.keep_all_duration)
+                    '%s\\\%s' % (platform_dir, args.release), validity_days=args.keep_all_duration)
+            else:
+                for release_name in os.listdir(platform_dir):
+                    print("Processing release %s" % release_name)
+                    remove_outdated_builds(
+                        '%s\\\%s' % (platform_dir, release_name), validity_days=args.keep_all_duration)
 
 
 if __name__ == "__main__":
