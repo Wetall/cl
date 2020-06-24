@@ -48,7 +48,7 @@ def remove_outdated_builds(directory, validity_days=30):
     candidates_sum_size = candidates_sum_size-safed_build['size']
 
     # remove other builds
-    while candidates_sum_size > args.maximum_size:
+    while candidates_sum_size > args.maximum_size and len(candidates) > 0:
         remove_candidate = candidates.pop(0)
         print('Removing build %s' % remove_candidate["path"])
         candidates_sum_size = candidates_sum_size-remove_candidate["size"]
