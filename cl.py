@@ -20,7 +20,7 @@ def remove_outdated_builds(directory, validity_days=30):
     current_time = time.time()
     valid_seconds = 24*60*60*validity_days
     candidates = []
-    candidates_sum_size = 0
+    candidates_total_size = 0
     print("Processing directory %s" % directory)
     # search candidates on removing
     for build in os.listdir(directory):
@@ -30,7 +30,7 @@ def remove_outdated_builds(directory, validity_days=30):
         print("Found build %s, mtime: %s, build_age: %s" %
               (build_path, mtime, build_age))
         if (build.endswith('_CERT')):
-            print("Skipped build due to name end on _CERT")
+            print("Skipped build due to name ends on _CERT")
             continue
         if (build_age < valid_seconds):
             print("Skipped build because %s < %s" % (build_age, valid_seconds))
@@ -41,23 +41,25 @@ def remove_outdated_builds(directory, validity_days=30):
             "path": build_path,
             "size": candidate_size
         })
-        candidates_sum_size += candidate_size
+        candidates_total_size += candidate_size
     if len(candidates) == 0:
         return  # no candidates - go away
     # sort candidates by size
     candidates = sorted(candidates, key=lambda x: x["size"])
+    print('Candidates total size: %s' % (candidates_total_size))
     print('Candidates sorted by size:')
     [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
     safed_build = candidates.pop(-1)
     print('Safe biggest build %s ' % safed_build["path"])
-    candidates_sum_size = candidates_sum_size-safed_build['size']
+    candidates_total_size = candidates_total_size-safed_build['size']
 
     # remove other builds
-    while candidates_sum_size > args.maximum_size and len(candidates) > 0:
+    while candidates_total_size > args.maximum_size and len(candidates) > 0:
         remove_candidate = candidates.pop(0)
-        print('Removing build %s' % remove_candidate["path"])
-        candidates_sum_size = candidates_sum_size-remove_candidate["size"]
+        print('Removing build %s ( %s )' %
+              (remove_candidate["path"], convert_size(remove_candidate["size"])))
+        candidates_total_size = candidates_total_size-remove_candidate["size"]
         # shutil.rmtree('%s\\\%s' % (root_folder_path, remove_candidate) )  #uncomment to use----del
 
 
