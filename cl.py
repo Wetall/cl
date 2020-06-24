@@ -17,6 +17,7 @@ def remove_outdated_builds(directory, validity_days=30):
     current_time = time.time()
     valid_seconds = 24*60*60*validity_days
     candidates = []
+    candidates_sum_size = 0
     print("Processing directory %s" % directory)
     # search candidates on removing
     for build in os.listdir(directory):
@@ -29,24 +30,29 @@ def remove_outdated_builds(directory, validity_days=30):
             print("Skipped build because %s < %s" % (build_age, valid_seconds))
             continue
         print("Found candidate for removing: %s" % build_path)
+        candidate_size = folder_size(build_path)
         candidates.append({
             "path": build_path,
-            "size": folder_size(build_path)
+            "size": candidate_size
         })
+        candidates_sum_size += candidate_size
     if len(candidates) == 0:
         return  # no candidates - go away
     # sort candidates by size
-    candidates = sorted(candidates, reverse=True, key=lambda x: x["size"])
+    candidates = sorted(candidates, key=lambda x: x["size"])
     print('Candidates sorted by size:')
     [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
-    safed_build = candidates.pop(0)
+    safed_build = candidates.pop(-1)
     print('Safe biggest build %s ' % safed_build["path"])
+    candidates_sum_size = candidates_sum_size-safed_build['size']
 
     # remove other builds
-    for build in candidates:
-        print('Removing build %s' % build["path"])
-        # shutil.rmtree('%s\\\%s' % (root_folder_path, build) )  #uncomment to use----del
+    while candidates_sum_size > args.maximum_size:
+        remove_candidate = candidates.pop(0)
+        print('Removing build %s' % remove_candidate["path"])
+        candidates_sum_size = candidates_sum_size-remove_candidate["size"]
+        # shutil.rmtree('%s\\\%s' % (root_folder_path, remove_candidate) )  #uncomment to use----del
 
 
 def folder_size(path='.'):
