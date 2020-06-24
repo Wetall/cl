@@ -69,11 +69,12 @@ def convert_size(size):
 def main():
     for project in ["INJ2", "MKM"]:
         for platform in ["IOS", "Android"]:
-            platform_dir = os.path.join("D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\%s\\Automated\\%s", % (project, platform))
-            for dir in os.listdir(platform_dir):
-                print("Processing release %s" % dir)
+            platform_dir = os.path.join(
+                "D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\%s\\Automated\\%s" % (project, platform))
+            for release_name in os.listdir(platform_dir):
+                print("Processing release %s" % release_name)
                 remove_outdated_builds(
-                    dir.path, validity_days=args.keep_all_duration)
+                    "%s\\%s" % (platform_dir, release_name), validity_days=args.keep_all_duration)
 
 
 if __name__ == "__main__":
