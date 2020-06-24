@@ -29,6 +29,9 @@ def remove_outdated_builds(directory, validity_days=30):
         build_age = current_time - mtime
         print("Found build %s, mtime: %s, build_age: %s" %
               (build_path, mtime, build_age))
+        if (build.endswith('_CERT')):
+            print("Skipped build due to name end on _CERT")
+            continue
         if (build_age < valid_seconds):
             print("Skipped build because %s < %s" % (build_age, valid_seconds))
             continue
