@@ -20,7 +20,7 @@ def remove_outdated_builds(directory, validity_days=30):
     print("Processing directory %s" % directory)
     # search candidates on removing
     for build in os.listdir(directory):
-        build_path = os.path.join(directory, build)
+        build_path = '%s//%s' % (directory, build)
         mtime = os.path.getmtime(build_path)
         build_age = current_time - mtime
         print("Found build %s, mtime: %s, build_age: %s" %
@@ -46,7 +46,7 @@ def remove_outdated_builds(directory, validity_days=30):
     # remove other builds
     for build in candidates:
         print('Removing build %s' % build["path"])
-        # shutil.rmtree(os.path.join(root_folder_path, build))  #uncomment to use----del
+        # shutil.rmtree('%s//%s' % (root_folder_path, build) )  #uncomment to use----del
 
 
 def folder_size(path='.'):
@@ -69,12 +69,12 @@ def convert_size(size):
 def main():
     for project in ["INJ2", "MKM"]:
         for platform in ["IOS", "Android"]:
-            platform_dir = os.path.join(
-                "D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\%s\\Automated\\%s" % (project, platform))
+            platform_dir = 'D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\%s\\Automated\\%s' % (
+                project, platform)
             for release_name in os.listdir(platform_dir):
                 print("Processing release %s" % release_name)
                 remove_outdated_builds(
-                    "%s\\%s" % (platform_dir, release_name), validity_days=args.keep_all_duration)
+                    '%s\\%s' % (platform_dir, release_name), validity_days=args.keep_all_duration)
 
 
 if __name__ == "__main__":
