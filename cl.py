@@ -42,7 +42,8 @@ def remove_outdated_builds(path, validity_days=30):
     [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
     safed_build = candidates.pop(0)
-    print('Safe biggest build %s' % safed_build["path"])
+    candidates_size =
+    print('Safe biggest build %s ' % safed_build["path"])
 
     # remove other builds
     for build in candidates:
@@ -71,11 +72,11 @@ def main():
     for project in ["INJ2", "MKM"]:
         for platform in ["IOS", "Android"]:
             platform_dir = os.path.join(
-                *["D:", os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform])
+                *["D:%s" % os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform])
             for dir in os.listdir(platform_dir):
                 print("Processing release %s" % dir)
                 remove_outdated_builds(
-                    ["D:", os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], validity_days=args.keep_all_duration)
+                    ["D:%s" % os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], validity_days=args.keep_all_duration)
 
 
 if __name__ == "__main__":
