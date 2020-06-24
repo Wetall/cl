@@ -13,8 +13,7 @@ parser.add_argument('--keep-all-duration', type=int,
 args = parser.parse_args()
 
 
-def remove_outdated_builds(path, validity_days=30):
-    directory = os.path.join(*path)
+def remove_outdated_builds(directory, validity_days=30):
     current_time = time.time()
     valid_seconds = 24*60*60*validity_days
     candidates = []
@@ -42,7 +41,6 @@ def remove_outdated_builds(path, validity_days=30):
     [print(x["path"], convert_size(x["size"])) for x in candidates]
     # safe biggest build
     safed_build = candidates.pop(0)
-    candidates_size =
     print('Safe biggest build %s ' % safed_build["path"])
 
     # remove other builds
@@ -71,12 +69,11 @@ def convert_size(size):
 def main():
     for project in ["INJ2", "MKM"]:
         for platform in ["IOS", "Android"]:
-            platform_dir = os.path.join(
-                *["D:%s" % os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform])
+            platform_dir = os.path.join("D:\\chi-file01\\INJ2Mobile\\MobileBuilds\\%s\\Automated\\%s", % (project, platform))
             for dir in os.listdir(platform_dir):
                 print("Processing release %s" % dir)
                 remove_outdated_builds(
-                    ["D:%s" % os.sep, "chi-file01", "INJ2Mobile", "MobileBuilds", project, "Automated", platform, dir], validity_days=args.keep_all_duration)
+                    dir.path, validity_days=args.keep_all_duration)
 
 
 if __name__ == "__main__":
