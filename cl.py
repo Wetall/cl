@@ -49,14 +49,15 @@ def remove_outdated_builds(directory, validity_days=30):
         # shutil.rmtree('%s\\%s' % (root_folder_path, build) )  #uncomment to use----del
 
 
-def folder_size(path='.'):
-    total = 0
-    for entry in os.scandir(path):
-        if entry.is_file():
-            total += entry.stat().st_size
-        elif entry.is_dir():
-            total += folder_size(entry.path)
-    return total
+def folder_size(path):
+    TotalSize = 0
+    for item in os.walk(path):
+        for file in item[2]:
+            try:
+                TotalSize = TotalSize + os.path.getsize(join(item[0], file))
+            except:
+                print("error with file:  " + os.path.join(item[0], file))
+    return TotalSize
 
 
 def convert_size(size):
