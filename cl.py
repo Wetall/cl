@@ -4,6 +4,7 @@ import time
 import shutil
 import os
 import argparse
+import datetime
 
 parser = argparse.ArgumentParser(description='Prune outdated builds')
 parser.add_argument('--maximum-size', type=int, default=2 **
@@ -15,6 +16,11 @@ parser.add_argument('--release', type=str,
 
 args = parser.parse_args()
 
+def convert(seconds):
+    return time.strftime("%b %d %Y %H:%M:%S", time.gmtime(seconds))
+
+def convertDelta(build_age):
+    return str(datetime.timedelta(seconds=build_age))
 
 def remove_outdated_builds(directory, validity_days=30):
     current_time = time.time()
@@ -28,7 +34,7 @@ def remove_outdated_builds(directory, validity_days=30):
         mtime = os.path.getmtime(build_path)
         build_age = current_time - mtime
         print("Found build %s, mtime: %s, build_age: %s" %
-              (build_path, mtime, build_age))
+              (build_path, convert(mtime), convertDelta(build_age))
         if (build.endswith('_CERT')):
             print("Skipped build due to name ends on _CERT")
             continue
@@ -62,7 +68,6 @@ def remove_outdated_builds(directory, validity_days=30):
         candidates_total_size = candidates_total_size-remove_candidate["size"]
         # shutil.rmtree('%s\\\%s' % (root_folder_path, remove_candidate) )  #uncomment to use----del
 
-
 def folder_size(path='.'):
     total = 0
     for entry in os.scandir(path):
@@ -72,13 +77,11 @@ def folder_size(path='.'):
             total += folder_size(entry.path)
     return total
 
-
 def convert_size(size):
     for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
         if size < 1024.0:
             return "%3.1f %s" % (size, x)
         size /= 1024.0
-
 
 def main():
     for project in ["INJ2", "MKM"]:
@@ -93,7 +96,6 @@ def main():
                     print("Processing release %s" % release_name)
                     remove_outdated_builds(
                         '%s\\\%s' % (platform_dir, release_name), validity_days=args.keep_all_duration)
-
 
 if __name__ == "__main__":
     main()
